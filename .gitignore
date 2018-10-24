@@ -3,6 +3,8 @@
 
 # Log file
 *.log
+# package
+target
 
 # BlueJ files
 *.ctxt

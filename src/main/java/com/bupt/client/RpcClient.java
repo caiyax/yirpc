@@ -4,6 +4,8 @@ import com.bupt.model.RpcProxy;
 import com.bupt.protocol.Request;
 import com.bupt.protocol.Response;
 import com.bupt.protocol.SerializationUtil;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,8 +13,13 @@ import java.io.OutputStream;
 import java.lang.reflect.Proxy;
 import java.net.Socket;
 
+@Component
 public class RpcClient {
-    public static <T> T create(Class<T> interfaceClass) {
+    @Value("${rpc.host}")
+    private String host;
+    @Value("${rpc.port}")
+    private Integer port;
+    public <T> T create(Class<T> interfaceClass) {
         return (T) Proxy.newProxyInstance(
                 interfaceClass.getClassLoader(),
                 new Class<?>[]{interfaceClass},
@@ -20,8 +27,6 @@ public class RpcClient {
         );
     }
     public Response sendRequest(Request request){
-        int port=12345;
-        String host="127.0.0.1";
         Socket socket=null;
         Response response=null;
         try {
@@ -47,34 +52,4 @@ public class RpcClient {
         }
         return response;
     }
-    /*public static void main(String[] args) {
-        int port=12345;
-        String host="127.0.0.1";
-        Socket socket=null;
-        try {
-            Request request=new Request();
-            request.setId(System.currentTimeMillis());
-            request.setClassName("com.bupt.model.Student");
-            request.setMethodName("say");
-            byte[] bytes= SerializationUtil.serialize(request);
-            socket=new Socket(host,port);
-            OutputStream outputStream=socket.getOutputStream();
-            InputStream inputStream=socket.getInputStream();
-            outputStream.write(bytes);
-            outputStream.flush();
-            byte[] res=new byte[1024];
-            inputStream.read(res);
-            Response response= (Response) SerializationUtil.deserialize(res);
-            System.out.println(response.getRequestId());
-            System.out.println(response.getResult());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }finally {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }*/
 }
